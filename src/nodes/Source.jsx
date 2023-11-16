@@ -23,7 +23,7 @@ export default function Source({ id, data }) {
                     type="range"
                     min="0"
                     max="2"
-                    step="0.1"
+                    step="0.01"
                     value={data.playbackRate}
                     onChange={setPlaybackRate}
                 />
@@ -36,7 +36,6 @@ export default function Source({ id, data }) {
                 <p className={tw('text-xs font-bold mb-2')}>Music</p>
                 <select className="nodrag" value={data.name} onChange={setMuisc}>
                     <option value="music1">海阔天空</option>
-                    <option value="music2">如果这就是爱情</option>
                 </select>
             </label>
 

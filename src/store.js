@@ -42,7 +42,7 @@ export const useStore = create((set, get) => ({
                 break;
             }
 
-            case 'amp': {
+            case 'gain': {
                 const data = { gain: 0.5 };
                 const position = { x: 0, y: 0 };
 
@@ -74,6 +74,26 @@ export const useStore = create((set, get) => ({
 
             case 'convolver': {
                 const data = { name: 'impulse1' };
+                const position = { x: 0, y: 0 };
+
+                createAudioNode(id, type, data);
+                set({ nodes: [...get().nodes, { id, type, data, position }] });
+
+                break;
+            }
+
+            case 'analyser1': {
+                const data = {};
+                const position = { x: 0, y: 0 };
+
+                createAudioNode(id, type, data);
+                set({ nodes: [...get().nodes, { id, type, data, position }] });
+
+                break;
+            }
+
+            case 'analyser2': {
+                const data = {};
                 const position = { x: 0, y: 0 };
 
                 createAudioNode(id, type, data);

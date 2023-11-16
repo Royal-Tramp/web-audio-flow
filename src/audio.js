@@ -2,7 +2,7 @@ const context = new AudioContext();
 const nodes = new Map();
 const MUSIC_MAP = {
     'music1': '/obj_wo3DlMOGwrbDjj7DisKw_31146534910_3169_1031_756f_e801284743c4cd4667f180a3265dd7e5.mp3',
-    'music2': '/obj_wo3DlMOGwrbDjj7DisKw_31392207488_5a80_7ec9_917b_0a8eb3012e629435dcdf6db9810ee929.mp3',
+    // 'music1': '/obj_wo3DlMOGwrbDjj7DisKw_31385928421_fe6a_c9f8_9a67_c8c98c392e6f6f51ac1fb3d28d3a1dc8.mp3',
 };
 const IMPULSE_MAP = {
     'impulse1': '/filter-telephone.wav',
@@ -10,6 +10,23 @@ const IMPULSE_MAP = {
 
 context.suspend();
 nodes.set('output', context.destination);
+
+function createPromiseXHR(url) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onload = function() {
+            resolve(xhr.response)
+        };
+        xhr.send();
+    })
+}
+
+function request(url) {
+    // return createPromiseXHR(url)
+    return fetch(url).then(res => res.arrayBuffer())
+}
 
 export function isRunning() {
     return context.state === 'running';
@@ -31,7 +48,7 @@ export async function createAudioNode(id, type, data) {
             break;
         }
 
-        case 'amp': {
+        case 'gain': {
             const node = context.createGain();
             node.gain.value = data.gain;
 
@@ -41,10 +58,11 @@ export async function createAudioNode(id, type, data) {
 
         case 'source': {
             const url = MUSIC_MAP[data.name];
-            const musicArrayBuffer = await fetch(url).then(res => res.arrayBuffer());
+            const musicArrayBuffer = await request(url);
             const decodedAudioData = await context.decodeAudioData(musicArrayBuffer);
             const node = context.createBufferSource();
             node.buffer = decodedAudioData;
+            node.loop = true;
             node.playbackRate.value = 1;
             node.start();
 
@@ -65,10 +83,30 @@ export async function createAudioNode(id, type, data) {
 
         case 'convolver': {
             const url = IMPULSE_MAP[data.name];
-            const impulseArrayBuffer = await fetch(url).then(res => res.arrayBuffer());
+            const impulseArrayBuffer = await request(url);
             const decodedAudioData = await context.decodeAudioData(impulseArrayBuffer);
             const node = context.createConvolver();
             node.buffer = decodedAudioData;
+
+            nodes.set(id, node);
+            break;
+        }
+
+        case 'analyser1': {
+            const node = context.createAnalyser();
+            node.minDecibels = -90;
+            node.maxDecibels = -10;
+            node.smoothingTimeConstant = 0.85;
+
+            nodes.set(id, node);
+            break;
+        }
+
+        case 'analyser2': {
+            const node = context.createAnalyser();
+            node.minDecibels = -90;
+            node.maxDecibels = -10;
+            node.smoothingTimeConstant = 0.85;
 
             nodes.set(id, node);
             break;
@@ -85,6 +123,10 @@ export async function updateAudioNode(id, data) {
             node[key] = val;
         }
     }
+}
+
+export function getAudioNode(id) {
+    return nodes.get(id);
 }
 
 export function removeAudioNode(id) {
