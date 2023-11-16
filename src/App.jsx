@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactFlow, { ReactFlowProvider, Background, Panel, useReactFlow } from 'reactflow';
+import ReactFlow, { ReactFlowProvider, Background, Panel, MiniMap, Controls } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 import { useStore } from './store';
 import { tw } from 'twind';
@@ -81,7 +81,9 @@ export default function App() {
               Add Analyser2
             </button>
           </Panel>
-          <Background />
+          <MiniMap />
+          <Controls />
+          <Background variant="cross" />
         </ReactFlow>
       </div>
     </ReactFlowProvider>
